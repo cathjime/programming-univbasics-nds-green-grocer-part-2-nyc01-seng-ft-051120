@@ -1,3 +1,5 @@
+require"pry"
+
 describe "Grocer" do
   # let() is like a global variable for tests
   let(:items) do
@@ -170,6 +172,7 @@ describe "Grocer" do
 
         expect(cheese[:price]).to eq(6.50)
         expect(avocado[:price]).to eq(3.00)
+        # binding.pry
         expect(cheese_wc[:price]).to eq(5.00)
         expect(cheese_wc[:count]).to eq(3)
         expect(cheese_wc[:clearance]).to eq(false)
