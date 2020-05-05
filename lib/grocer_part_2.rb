@@ -50,6 +50,7 @@ def checkout(cart, coupons)
   final_cart = apply_clearance(couponed_cart)
   
   
+  
 end
  # binding.pry
 
