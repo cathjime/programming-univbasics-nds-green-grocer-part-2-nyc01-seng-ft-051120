@@ -4,52 +4,61 @@ require "pry"
 def apply_coupons(cart, coupons)
   count = 0 
   
-  while count < cart.length do 
-    if cart[count][:item] == coupons[count][:item] && cart[count][:count] == coupons[count][:num]
-  
-      discounted_name = cart[count][:item] + " W/COUPON"
-      coupon_price = coupons[count][:cost] / coupons[count][:num]
-      new_hash = {:item => discounted_name, :price => coupon_price, :clearance => true, :count =>coupons[count][:num]}
-      cart.push(new_hash)
-    
-    elsif cart[count][:item] == coupons[count][:item] && cart[count][:count] != coupons[count][:num]
-    
-    binding.pry
-      cart[count][:count] = coupons[count][:num] - cart[count][:count] 
-      disc_hash = {:item => discounted_name, :price => coupon_price, :clearance => true, :count =>coupons[count][:num]}
-      cart.push(disc_hash)
-     end
+  while count < coupons.length do 
+    cart_item = find_item_by_name_in_collection(coupons[count][:item], cart)
+    coupon_item = "#{coupons[count][:item]} W/COUPON"
+    existing_coupon_item = find_item_by_name_in_collection(coupon_item, cart)
+    if cart_item && cart_item[:count] >= coupons[count][:num]
+      if existing_coupon_item
+        existing_coupon_item[:count] += coupons[count][:num]
+        cart_item[:count] -= coupons[count][:num]
+      else 
+        existing_coupon_item = {
+          :item => coupon_item, 
+          :price => coupons[count][:cost] / coupons[count][:num], 
+          :clearance => cart_item[:clearance], 
+          :count => coupons[count][:num]
+        }
+        cart << existing_coupon_item
+        cart_item[:count] -= coupons[count][:num]
+      end 
+    end
+      count += 1 
   end 
-  
-  # REMEMBER: This method **should** update cart
+  cart 
 end
-
-#binding.pry
-
-#iterate thru each hash ele in cart 
-#find item name in each hash ele 
-#if item name matches name inside coupon array 
-#update count 
-#create new hash w updated item name,price, count
-#push new hash into existing arr 
-#return updated arr 
-
-
+    
 
 def apply_clearance(cart)
-  # Consult README for inputs and outputs
-  #
-  # REMEMBER: This method **should** update cart
+  counter = 0 
+  
+  while counter < cart.length do 
+    if cart[counter][:clearance] == true 
+      applied_discount = cart[counter][:price] - (cart[counter][:price] * 0.20)
+       cart[counter][:price] = applied_discount.round(2)
+    end 
+      counter += 1 
+  end 
+  cart
 end
 
+
+
 def checkout(cart, coupons)
-  # Consult README for inputs and outputs
-  #
-  # This method should call
-  # * consolidate_cart
-  # * apply_coupons
-  # * apply_clearance
-  #
-  # BEFORE it begins the work of calculating the total (or else you might have
-  # some irritated customers
+  consolidated_cart = consolidate_cart(cart)
+  couponed_cart = apply_coupons(consolidated_cart, coupons)
+  final_cart = apply_clearance(couponed_cart)
+  
+  total = 0 
+  counter = 0 
+  while counter < final_cart.length do 
+    total += final_cart[counter][:price] * final_cart[counter][:count]
+    counter += 1 
+  end 
+  if total > 100 
+    total -= (total * 0.10)
+  end 
+  total
 end
+ # binding.pry
+
